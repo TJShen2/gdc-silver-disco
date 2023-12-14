@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class Dialogue : MonoBehaviour
 {
@@ -18,7 +18,12 @@ public class Dialogue : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() { }
+    void Update()
+    {
+        
+    }
 
-    void StartDialogue() { }
+    void StartDialogue() {
+
+    }
 }
