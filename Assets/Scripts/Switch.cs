@@ -7,6 +7,7 @@ public class Switch : MonoBehaviour
     private GameObject laser;
     [SerializeField] private KeyCode activateSwitchKey;
     [SerializeField] private LayerMask player;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,6 +17,7 @@ public class Switch : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if the player is near the switch and the key has been pressed, toggle the activeSelf field of laser
         if (Physics2D.BoxCast(transform.position, new Vector2(1,1), 0, new Vector2(0,0), 0, player)) {
             if (Input.GetKeyDown(activateSwitchKey) && laser.activeSelf) {
                 laser.SetActive(false);
