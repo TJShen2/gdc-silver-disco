@@ -27,7 +27,22 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     private bool isDead;
-    
+    public bool IsDead {
+        get { return isDead; }
+        set { isDead = value; }
+    }
+    private bool isJumpImmune;
+    private bool canJump;
+    [SerializeField] private float jumpImmunityDelay;
+    [SerializeField] private float jumpImmunityDuration;
+
+    private float energy;
+    public float Energy {
+        get { return energy; }
+        set { energy = value; } 
+    }
+    [SerializeField] private float startingEnergy;
+    [SerializeField] private float jumpEnergyConsumption;
 
     public void Start()
     {
@@ -36,6 +51,13 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
         spriteColor = sr.sharedMaterial.color;
+
+        // Set jump variables
+        canJump = true;
+        isJumpImmune = false;
+
+        // Set energy
+        energy = startingEnergy;
     }
 
     public void Update() {
@@ -47,7 +69,7 @@ public class PlayerController : MonoBehaviour
         onLava = Physics2D.OverlapBox(transform.position, transform.localScale, 0f, lavaLayer);
 
         if (!onGround && onLava) {
-            StartCoroutine(Die());
+            StartCoroutine(DeathSequence());
         }
     }
 
@@ -69,8 +91,22 @@ public class PlayerController : MonoBehaviour
         
         InputVector = callbackContext.ReadValue<Vector2>().normalized;
     }
-
-    private IEnumerator Die() {
+    private IEnumerator JumpSequence() {
+        canJump = false;
+        yield return new WaitForSeconds(jumpImmunityDelay);
+        isJumpImmune = true;
+        yield return new WaitForSeconds(jumpImmunityDuration);
+        isJumpImmune = false;
+        yield return new WaitForSeconds(jumpImmunityDelay);
+        canJump = true;
+    }
+    public void Jump() {
+        if (energy >= jumpEnergyConsumption && canJump) {
+            energy -= jumpEnergyConsumption;
+            StartCoroutine(JumpSequence());
+        }
+    }
+    private IEnumerator DeathSequence() {
         isDead = true;
         InputVector = Vector2.zero;
         yield return StartCoroutine(FadeToDeath(1f));
@@ -78,10 +114,18 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(1f);
         Respawn();
     }
+    public void Die() {
+        if (!isJumpImmune) {
+            StartCoroutine(DeathSequence());
+        }
+    }
 
     private void Respawn() {
+        // Stop death and jump coroutines since this is a new life
+        StopAllCoroutines();
+
         // Set the death flag to be false
-        // Since we are no longer dead -> respawnjing
+        // Since we are no longer dead -> respawning
         isDead = false;
 
         // Reset our position
@@ -89,6 +133,13 @@ public class PlayerController : MonoBehaviour
 
         // Reset our color 
         sr.color = spriteColor;
+
+        // Reset jump variables
+        canJump = true;
+        isJumpImmune = false;
+
+        // Reset energy
+        energy = startingEnergy;
     }
 
     private IEnumerator FadeToDeath(float duration) {
