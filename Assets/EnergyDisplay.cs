@@ -21,7 +21,6 @@ public class EnergyDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(playerScript.Energy);
         energyDisplay.SetText("Energy: " + playerScript.Energy + " J");
         energyDisplay.ForceMeshUpdate();
     }
